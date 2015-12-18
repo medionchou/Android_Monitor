@@ -76,6 +76,7 @@ public class MainActivity extends FragmentActivity implements ServiceListener {
         if (mConnection.isBound()) {
             unbindService(mConnection);
         }
+        asynTask.stopProgressBar();
     }
 
     public LocalServiceConnection getLocalServiceConnection() {
@@ -213,8 +214,10 @@ public class MainActivity extends FragmentActivity implements ServiceListener {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            if (progressDialog.isShowing())
-                progressDialog.dismiss();
+        }
+
+        public void stopProgressBar() {
+            progressDialog.cancel();
         }
     }
 }

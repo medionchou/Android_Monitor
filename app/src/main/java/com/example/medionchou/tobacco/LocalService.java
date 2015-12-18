@@ -24,7 +24,7 @@ import java.util.List;
 
 public class LocalService extends Service implements Runnable {
 
-    private String SERVER_IP = "192.168.1.250";
+    private String SERVER_IP = "140.113.167.14";
     private int SERVER_PORT = 9000;
     private final IBinder mBinder = new LocalBinder();
 
@@ -122,6 +122,7 @@ public class LocalService extends Service implements Runnable {
                     socketChannel = SocketChannel.open();
                     socketChannel.configureBlocking(false);
                     socketChannel.connect(new InetSocketAddress(SERVER_IP, SERVER_PORT));
+
 
                     while (!socketChannel.finishConnect()) {
                         Thread.sleep(2000);
