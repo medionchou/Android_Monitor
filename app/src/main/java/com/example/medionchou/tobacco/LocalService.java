@@ -24,7 +24,7 @@ import java.util.List;
 
 public class LocalService extends Service implements Runnable {
 
-    private String SERVER_IP = "140.113.167.14";
+    private String SERVER_IP = "192.168.1.250";
     private int SERVER_PORT = 9000;
     private final IBinder mBinder = new LocalBinder();
 
@@ -54,9 +54,9 @@ public class LocalService extends Service implements Runnable {
         /*initObject();
         client.start();*/
         //Log.v("MyLog", "ServiceOnCreate");
-        SharedPreferences settings = getSharedPreferences(Config.IPCONFIG, 0);
-        SERVER_IP = settings.getString("IP", "140.113.167.14");
-        SERVER_PORT = settings.getInt("PORT", 9000);
+        //SharedPreferences settings = getSharedPreferences(Config.IPCONFIG, 0);
+//        SERVER_IP = settings.getString("IP", "140.113.167.14");
+//        SERVER_PORT = settings.getInt("PORT", 9000);
     }
 
     @Override
@@ -159,7 +159,12 @@ public class LocalService extends Service implements Runnable {
 
                         String endLine = serverReply.substring(0, endIndex);
 
+
                         Log.v("MyLog", endLine);
+
+                        if (endLine.contains("UPDATE") && endLine.indexOf("UPDATE") > 0 ) {
+                            endLine = endLine.substring(endLine.indexOf("UPDATE"), endIndex);
+                        }
 
                         if (endLine.contains("CONNECT_OK<END>")) {
                             client_state = States.CONNECT_OK;

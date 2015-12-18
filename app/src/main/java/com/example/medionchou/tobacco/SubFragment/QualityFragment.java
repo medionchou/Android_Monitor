@@ -29,9 +29,21 @@ import org.w3c.dom.Text;
  */
 public class QualityFragment extends Fragment {
 
-    private LocalService mService;
+    private static LocalService mService;
     private QualityAsync asyncTask;
     private View view;
+    private static LocalServiceConnection mConnection;
+
+    public static QualityFragment newInstance(int num, LocalServiceConnection mConnection) {
+        QualityFragment f = new QualityFragment();
+        Bundle args = new Bundle();
+        args.putInt("num", num);
+        f.setArguments(args);
+        QualityFragment.mConnection = mConnection;
+        mService = mConnection.getService();
+
+        return f;
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -59,7 +71,7 @@ public class QualityFragment extends Fragment {
 
         view = rootView;
         asyncTask = new QualityAsync();
-        asyncTask.execute((Void) null);
+        asyncTask.start();
 
         return rootView;
     }
@@ -77,14 +89,13 @@ public class QualityFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-
-        if (!asyncTask.isCancelled())
-            asyncTask.cancel(true);
+        if (asyncTask != null)
+            asyncTask.stopThread();
+        asyncTask = null;
     }
 
 
-    private class QualityAsync extends AsyncTask<Void, String, Void> {
-        ProgressDialog progressDialog;
+    private class QualityAsync extends Thread {
         int time[] = {R.id.time1, R.id.time2, R.id.time3, R.id.time4, R.id.time5, R.id.time6, R.id.time7, R.id.time8, R.id.time9};
         int lineId[] = {R.id.line1, R.id.line2, R.id.line3, R.id.line4, R.id.line5, R.id.line6, R.id.line7, R.id.line8, R.id.line9};
         int productId[] = {R.id.product1, R.id.product2, R.id.product3, R.id.product4, R.id.product5, R.id.product6, R.id.product7, R.id.product8, R.id.product9};
@@ -98,22 +109,20 @@ public class QualityFragment extends Fragment {
         int breathValue[] = {R.id.breath_value1, R.id.breath_value2, R.id.breath_value3, R.id.breath_value4, R.id.breath_value5, R.id.breath_value6, R.id.breath_value7, R.id.breath_value8, R.id.breath_value9};
         int breathMin[] = {R.id.breath_min1, R.id.breath_min2, R.id.breath_min3, R.id.breath_min4, R.id.breath_min5, R.id.breath_min6, R.id.breath_min7, R.id.breath_min8, R.id.breath_min9};
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setTitle("請稍後");
-            progressDialog.setMessage("取得生產資訊中");
-            progressDialog.show();
-            progressDialog.setCancelable(false);
+        boolean stop = false;
+
+        public void stopThread() {
+            stop = true;
         }
 
+
         @Override
-        protected Void doInBackground(Void... params) {
+        public void run() {
+            super.run();
             String msg = "";
             try {
-                publishProgress("CREATE");
-                while (!isCancelled()) {
+                onProgressUpdate("CREATE");
+                while (!stop) {
                     msg = mService.getUpdateQual();
 
                     if (msg.length() > 0) {
@@ -124,7 +133,7 @@ public class QualityFragment extends Fragment {
 
                         for (String tmp : updateMsg) {
                             if (tmp.contains("UPDATE_VALUE")) {
-                                publishProgress("UPDATE", tmp);
+                                onProgressUpdate("UPDATE", tmp);
                             }
                         }
 
@@ -135,29 +144,27 @@ public class QualityFragment extends Fragment {
             } catch (InterruptedException e) {
                 Log.e("MyLog", e.toString() + " QualityFragment Interrupt");
             }
-            return null;
         }
 
-        @Override
         protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-
-            if (progressDialog.isShowing())
-                progressDialog.dismiss();
 
             if (values[0].equals("CREATE")) {
-                setInitialView();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setInitialView();
+
+                    }
+                });
             } else if (values[0].equals("UPDATE")) {
-                updateView(values[1]);
+                final String val = values[1];
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateView(val);
+                    }
+                });
             }
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-
-            if (progressDialog.isShowing())
-                progressDialog.cancel();
         }
 
         private void updateView(String raw) {
@@ -218,8 +225,8 @@ public class QualityFragment extends Fragment {
             TextView breathLabel = (TextView) view.findViewById(R.id.breath);
 
             line.setText("機台");
-            product.setText("生產");
-            curtime.setText("時間");
+            product.setText("品牌");
+            curtime.setText("檢測時間");
             weight.setText("重量");
             perimeter.setText("圓周");
             breathLabel.setText("透氣率");
@@ -262,7 +269,7 @@ public class QualityFragment extends Fragment {
 
 
                 timeView[i].setText("00:00:00");
-                lineView[i].setText(String.valueOf(i+1));
+                lineView[i].setText(String.valueOf(i+1) + " 號機");
                 productView[i].setText("無");
                 weightMaxView[i].setText("0.00");
                 weightValView[i].setText("0.00");
@@ -275,7 +282,7 @@ public class QualityFragment extends Fragment {
                 breathMinView[i].setText("0.00");
 
                 timeView[i].setTextSize(Config.TEXT_SIZE);
-                lineView[i].setTextSize(Config.TEXT_SIZE);
+                lineView[i].setTextSize(40);
                 productView[i].setTextSize(Config.TEXT_SIZE);
                 weightMaxView[i].setTextSize(Config.TEXT_SIZE);
                 weightValView[i].setTextSize(Config.TEXT_SIZE);

@@ -9,6 +9,9 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -18,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -27,17 +31,18 @@ import com.example.medionchou.tobacco.LocalService;
 import com.example.medionchou.tobacco.LocalServiceConnection;
 import com.example.medionchou.tobacco.MD5;
 import com.example.medionchou.tobacco.R;
+import com.example.medionchou.tobacco.ServiceListener;
+import com.example.medionchou.tobacco.SubFragment.ScheduleFragment;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends FragmentActivity implements ServiceListener {
 
     private LocalService mService;
-    private EditText accountEditView;
-    private Button loginBtn;
     private LocalServiceConnection mConnection;
+    private ConnectionAsynTask asynTask;
 
 
     @Override
@@ -46,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Intent intent = new Intent(this, LocalService.class);
-
         Bundle extras = getIntent().getExtras();
+
 
         if (extras == null)
             startService(intent);
@@ -60,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
         initObject();
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+
+        asynTask = new ConnectionAsynTask();
+        asynTask.execute((Void)null);
     }
 
     @Override
@@ -68,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
         if (mConnection.isBound()) {
             unbindService(mConnection);
         }
+    }
+
+    public LocalServiceConnection getLocalServiceConnection() {
+        return mConnection;
     }
 
     @Override
@@ -157,26 +169,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initObject() {
-        accountEditView = (EditText) findViewById(R.id.edit_text_account);
-        loginBtn = (Button) findViewById(R.id.loginBtn);
         mConnection = new LocalServiceConnection();
-        loginBtn.setOnClickListener(new LogginButtonListener());
     }
 
-
-    private class LogginButtonListener implements View.OnClickListener {
-
-        @Override
-        public void onClick(View v) {
-
-            if (mConnection.isBound()) {
-                ConnectionAsynTask asynTask = new ConnectionAsynTask();
-                asynTask.execute((Void)null);
-            } else {
-                Toast.makeText(MainActivity.this, getString(R.string.no_connection), Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 
     private class ConnectionAsynTask extends AsyncTask<Void, Void, Void> {
         String msg = "";
@@ -194,32 +189,23 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void[] params) {
-            mService = mConnection.getService();
-            String account = accountEditView.getText().toString();
-            String cmd = "LOGIN\tPDA\t" + account + "<END>"; //Specific Command
 
-            if (mService.getClientState() == States.CONNECT_OK) {
-                mService.setCmd(cmd);
+            while (!mConnection.isBound());
+
+            mService = mConnection.getService();
+
+            while (mService.getClientState() != States.CONNECT_OK) {
                 try {
                     Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    Log.e("MyLog", "InterruptedException In ConnectionAsynTask :" + e.toString());
-                }
+                } catch(InterruptedException e) {
 
-                if (mService.isLoggin()) {
-                    mService.resetLogginPerm();
-                    Intent intent = new Intent(MainActivity.this, LoggedInActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    intent.putExtra("WorkerId", account);
-                    startActivity(intent);
-                } else {
-                    msg = getString(R.string.user_info_err);
                 }
-            } else {
-                msg = getString(R.string.no_connection);
             }
 
-
+            //progressDialog.cancel();
+            Intent intent = new Intent(MainActivity.this, LoggedInActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
 
             return (Void)null;
         }
@@ -229,19 +215,6 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
             if (progressDialog.isShowing())
                 progressDialog.dismiss();
-
-            if (msg.length() > 0) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                if (msg.contains("未連線到伺服器")) {
-                    builder.setTitle("提示");
-                    builder.setMessage("暫時無法連線到伺服器\n請稍候重試或確認伺服器狀態後重試。");
-                    builder.show();
-                } else {
-                    builder.setTitle("提示");
-                    builder.setMessage("工號錯誤。");
-                    builder.show();
-                }
-            }
         }
     }
 }

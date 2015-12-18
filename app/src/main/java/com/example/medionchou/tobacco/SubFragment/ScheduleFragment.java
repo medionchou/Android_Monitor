@@ -26,6 +26,7 @@ import com.example.medionchou.tobacco.Constants.Config;
 import com.example.medionchou.tobacco.DataContainer.Schedule;
 import com.example.medionchou.tobacco.LocalService;
 import com.example.medionchou.tobacco.LocalServiceConnection;
+import com.example.medionchou.tobacco.ParentFragment.LookUpFragment;
 import com.example.medionchou.tobacco.R;
 import com.example.medionchou.tobacco.ServiceListener;
 
@@ -39,11 +40,23 @@ import java.util.List;
  */
 public class ScheduleFragment extends Fragment {
 
-    private LocalService mService;
+    private static LocalService mService;
     private ScheduleAsync schedulAsync;
     private TableLayout parentLayout;
 
+    static LocalServiceConnection mConnection;
 
+
+    public static ScheduleFragment newInstance(int num, LocalServiceConnection mConnection) {
+        ScheduleFragment f = new ScheduleFragment();
+        Bundle args = new Bundle();
+        args.putInt("num", num);
+        f.setArguments(args);
+        ScheduleFragment.mConnection = mConnection;
+        mService = mConnection.getService();
+
+        return f;
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -53,6 +66,7 @@ public class ScheduleFragment extends Fragment {
         mCallBack = (ServiceListener) activity;
         mConnection = mCallBack.getLocalServiceConnection();
         mService = mConnection.getService();
+
     }
 
     @Override
@@ -67,7 +81,7 @@ public class ScheduleFragment extends Fragment {
 
         parentLayout.setStretchAllColumns(true);
         schedulAsync = new ScheduleAsync();
-        schedulAsync.execute((Void) null);
+        schedulAsync.start();
         return rootView;
     }
 
@@ -84,40 +98,44 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (!schedulAsync.isCancelled())
-            schedulAsync.cancel(true);
+        if (schedulAsync != null)
+            schedulAsync.stopThread();
+        schedulAsync = null;
     }
 
-    private class ScheduleAsync extends AsyncTask<Void, String, Void> {
-        ProgressDialog progressDialog;
+    private class ScheduleAsync extends Thread {
         List<Schedule> scheduleList = new ArrayList<>();
 
         int lineId[] = {R.id.line1, R.id.line2, R.id.line3, R.id.line4, R.id.line5, R.id.line6, R.id.line7, R.id.line8, R.id.line9};
+        int productId[] = {R.id.product1, R.id.product2, R.id.product3, R.id.product4, R.id.product5, R.id.product6, R.id.product7, R.id.product8, R.id.product9};
         int cm_staff[] = {R.id.cm_staff1, R.id.cm_staff2, R.id.cm_staff3, R.id.cm_staff4, R.id.cm_staff5, R.id.cm_staff6, R.id.cm_staff7, R.id.cm_staff8, R.id.cm_staff9};
         int pm_staff[] = {R.id.pm_staff1, R.id.pm_staff2, R.id.pm_staff3, R.id.pm_staff4, R.id.pm_staff5, R.id.pm_staff6, R.id.pm_staff7, R.id.pm_staff8, R.id.pm_staff9};
+        int cm_boss[] = {R.id.cm_boss1, R.id.cm_boss2, R.id.cm_boss3, R.id.cm_boss4, R.id.cm_boss5, R.id.cm_boss6, R.id.cm_boss7, R.id.cm_boss8, R.id.cm_boss9};
+        int pm_boss[] = {R.id.pm_boss1, R.id.pm_boss2, R.id.pm_boss3, R.id.pm_boss4, R.id.pm_boss5, R.id.pm_boss6, R.id.pm_boss7, R.id.pm_boss8, R.id.pm_boss9};
         int office_id[] = {R.id.filter, R.id.boxing, R.id.repair, R.id.office};
         int office_layout[] = {R.id.fp_layout, R.id.boxing_layout, R.id.repair_layout, R.id.office_layout};
+        boolean stop = false;
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setTitle(getString(R.string.progress_dialog_waiting));
-            progressDialog.setMessage(getString(R.string.getting_query_result));
-            progressDialog.show();
-            progressDialog.setCancelable(false);
+        public void stopThread() {
+            stop = true;
         }
 
+
         @Override
-        protected Void doInBackground(Void... params) {
+        public void run() {
             String reply = "";
 
             try{
 
-                sendCommand(Command.SCHEDULE);
-                publishProgress("Update");
+                while(mService == null) {
+                    mService = mConnection.getService();
+                    Thread.sleep(1000);
+                }
 
-                while (!isCancelled()) {
+                sendCommand(Command.SCHEDULE);
+                onProgressUpdate("Update");
+
+                while (!stop) {
                     reply = mService.getUpdateMsg();
 
                     if (reply.length() > 0) {
@@ -134,7 +152,7 @@ public class ScheduleFragment extends Fragment {
                         if (isUpdate) {
                             scheduleList.clear();
                             sendCommand(Command.SCHEDULE);
-                            publishProgress("Update");
+                            onProgressUpdate("Update");
                         }
                     }
                     Thread.sleep(2000);
@@ -143,17 +161,17 @@ public class ScheduleFragment extends Fragment {
             } catch (InterruptedException e) {
                 Log.e("MyLog", e.toString());
             }
-            return null;
         }
 
-        @Override
         protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-            if (progressDialog.isShowing())
-                progressDialog.cancel();
 
             if (values[0].equals("Update")) {
-                setLayout();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setLayout();
+                    }
+                });
             }
         }
 
@@ -164,41 +182,84 @@ public class ScheduleFragment extends Fragment {
 
                 if (i < 9) {
                     TextView line = (TextView) parentLayout.findViewById(lineId[i]);
+                    TextView product = (TextView) parentLayout.findViewById(productId[i]);
                     TextView cm = (TextView) parentLayout.findViewById(cm_staff[i]);
                     TextView pm = (TextView) parentLayout.findViewById(pm_staff[i]);
+                    TextView cmBoss = (TextView) parentLayout.findViewById(cm_boss[i]);
+                    TextView pmBoss = (TextView) parentLayout.findViewById(pm_boss[i]);
 
-                    line.setText(schedule.getOffice());
+                    line.setText(String.valueOf(i + 1) + " 號機");
+                    product.setText(schedule.getOffice());
                     cm.setText(schedule.getCMStaff());
                     pm.setText(schedule.getPMStaff());
+                    cmBoss.setText(schedule.getCMBoss());
+                    pmBoss.setText(schedule.getPMBoss());
 
-                    line.setTextSize(28);
+                    line.setTextSize(40);
+                    product.setTextSize(Config.TEXT_SIZE);
                     cm.setTextSize(24);
                     pm.setTextSize(24);
+                    cmBoss.setTextSize(24);
+                    pmBoss.setTextSize(24);
 
-                    cm.setTextColor(Color.parseColor("#fff08080"));
-                    pm.setTextColor(Color.parseColor("#fff08080"));
+                    cm.setTextColor(Color.WHITE);
+                    pm.setTextColor(Color.WHITE);
+                    cmBoss.setTextColor(Color.WHITE);
+                    pmBoss.setTextColor(Color.WHITE);
 
-                    cm.setBackgroundColor(schedule.getColor(schedule.getCMOn()));
-                    pm.setBackgroundColor(schedule.getColor(schedule.getPMOn()));
+                    cm.setBackgroundColor(getResources().getColor(R.color.blue));
+                    pm.setBackgroundColor(getResources().getColor(R.color.blue));
+                    cmBoss.setBackgroundColor(getResources().getColor(R.color.blue));
+                    pmBoss.setBackgroundColor(getResources().getColor(R.color.blue));
 
                 } else {
                     LinearLayout layout = (LinearLayout)parentLayout.findViewById(office_layout[i-9]);
                     TextView staff = (TextView) parentLayout.findViewById(office_id[i-9]);
 
-                    staff.setText(schedule.getStaff());
+                    staff.setText(formattedStaff(schedule.getStaff()));
 
-                    staff.setTextSize(Config.TEXT_SIZE);
+                    staff.setTextSize(Config.TEXT_TITLE_SIZE);
 
-                    staff.setMaxEms(5);
+
                     staff.setMaxLines(4);
+                    staff.setTextColor(Color.WHITE); //646464
 
-                    staff.setTextColor(Color.parseColor("#fff08080")); //646464
+                    switch (i) {
+                        case 9:
+                            layout.setBackgroundColor(getResources().getColor(R.color.green1));
+                            break;
+                        case 10:
+                            layout.setBackgroundColor(getResources().getColor(R.color.green2));
+                            break;
+                        case 11:
+                            layout.setBackgroundColor(getResources().getColor(R.color.green3));
+                            break;
+                        case 12:
+                            layout.setBackgroundColor(getResources().getColor(R.color.green4));
+                            break;
 
-                    layout.setBackgroundColor(schedule.getColor(schedule.getOfficeOn()));
+                    }
 
                 }
+            }
+        }
+
+        private String formattedStaff(String staff) {
+            String[] parsed = staff.split(",");
+            String tmp = "";
+
+            for (int i = 0; i < parsed.length; i++) {
+                tmp += parsed[i];
+
+                if (i < parsed.length - 1)
+                    tmp += ",";
+
+                if ((i+1)%4 == 0)
+                    tmp += "\n";
 
             }
+
+            return tmp;
         }
 
 
@@ -226,12 +287,11 @@ public class ScheduleFragment extends Fragment {
             String[] officeInfo = rawData.split("<N>|<END>");
 
             for (int i = 0; i < officeInfo.length; i++) {
-                Log.v("MyLog", officeInfo[i]);
                 String[] detail = officeInfo[i].split("\\t", -1);
 
                 if (i < 9) {
 
-                    Schedule schedule = new Schedule(detail[1].equals("1"), detail[2].equals("1"), detail[3], detail[4], detail[5]);
+                    Schedule schedule = new Schedule(detail[1].equals("1"), detail[2].equals("1"), detail[3], detail[4], detail[5], detail[6], detail[7]);
 
                     scheduleList.add(schedule);
                 } else {
