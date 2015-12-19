@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import com.example.medionchou.tobacco.Constants.Command;
 import com.example.medionchou.tobacco.Constants.Config;
+import com.example.medionchou.tobacco.Constants.States;
 import com.example.medionchou.tobacco.DataContainer.LineState;
 import com.example.medionchou.tobacco.DataContainer.ProductLine;
 import com.example.medionchou.tobacco.DataContainer.RecipeList;
@@ -229,15 +230,31 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
         @Override
         public void run() {
             super.run();
-            while (!mConnection.isBound());
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-                    viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
+            try {
+                while (!mConnection.isBound()) {
+                    Thread.sleep(1000);
                 }
-            });
+
+
+                mService = mConnection.getService();
+
+                while (mService.getClientState() != States.CONNECT_OK) {
+                    Thread.sleep(1000);
+                }
+
+
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+                        viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
+                    }
+                });
+
+            } catch (InterruptedException e) {
+
+            }
         }
     }
 

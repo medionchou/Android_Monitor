@@ -76,7 +76,8 @@ public class MainActivity extends FragmentActivity implements ServiceListener {
         if (mConnection.isBound()) {
             unbindService(mConnection);
         }
-        asynTask.stopProgressBar();
+
+//        asynTask.stopProgressBar();
     }
 
     public LocalServiceConnection getLocalServiceConnection() {
@@ -176,32 +177,32 @@ public class MainActivity extends FragmentActivity implements ServiceListener {
 
     private class ConnectionAsynTask extends AsyncTask<Void, Void, Void> {
         String msg = "";
-        ProgressDialog progressDialog;
+//        ProgressDialog progressDialog;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = new ProgressDialog(MainActivity.this);
-            progressDialog.setTitle(getString(R.string.progress_dialog_waiting));
-            progressDialog.setMessage(getString(R.string.logging));
-            progressDialog.show();
-            progressDialog.setCancelable(false);
+//            progressDialog = new ProgressDialog(MainActivity.this);
+//            progressDialog.setTitle(getString(R.string.progress_dialog_waiting));
+//            progressDialog.setMessage(getString(R.string.logging));
+//            progressDialog.show();
+//            progressDialog.setCancelable(false);
         }
 
         @Override
         protected Void doInBackground(Void[] params) {
 
-            while (!mConnection.isBound());
+//            while (!mConnection.isBound());
+//
+//            mService = mConnection.getService();
 
-            mService = mConnection.getService();
-
-            while (mService.getClientState() != States.CONNECT_OK) {
-                try {
-                    Thread.sleep(2000);
-                } catch(InterruptedException e) {
-
-                }
-            }
+//            while (mService.getClientState() != States.CONNECT_OK) {
+//                try {
+//                    Thread.sleep(2000);
+//                } catch(InterruptedException e) {
+//
+//                }
+//            }
 
             //progressDialog.cancel();
             Intent intent = new Intent(MainActivity.this, LoggedInActivity.class);
@@ -217,7 +218,6 @@ public class MainActivity extends FragmentActivity implements ServiceListener {
         }
 
         public void stopProgressBar() {
-            progressDialog.cancel();
         }
     }
 }
