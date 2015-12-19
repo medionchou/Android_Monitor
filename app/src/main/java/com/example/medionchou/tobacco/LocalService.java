@@ -24,7 +24,7 @@ import java.util.List;
 
 public class LocalService extends Service implements Runnable {
 
-    private String SERVER_IP = "192.168.1.250";
+    private String SERVER_IP = "140.113.167.14";
     private int SERVER_PORT = 9000;
     private final IBinder mBinder = new LocalBinder();
 
@@ -231,7 +231,7 @@ public class LocalService extends Service implements Runnable {
 
         } catch (IOException e) {
             Log.e("MyLog", "IOException " + e.toString());
-            if (e.toString().contains("Server disconnect") || e.toString().contains("SocketTimeoutException") || e.toString().contains("ECONNRESET") ) {
+            if (e.toString().contains("Server disconnect") || e.toString().contains("SocketTimeoutException") || e.toString().contains("ECONNRESET") || e.toString().contains("ClosedChannelException") ) {
                 stopSelf();
                 Intent intent = new Intent(this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
