@@ -237,33 +237,24 @@ public class LocalService extends Service implements Runnable {
 
         } catch (IOException e) {
             Log.e("MyLog", "IOException " + e.toString());
-            if (e.toString().contains("Server disconnect") || e.toString().contains("SocketTimeoutException") || e.toString().contains("ECONNRESET") || e.toString().contains("ClosedChannelException") ) {
-                stopSelf();
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                /* TODO:
-                        Make sure reconnection will still work. At the same time, do not switch away from Bound Service.
-                 */
-                Log.v("MyLog", "Re-connection");
-            }
+
+            stopSelf();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
 
         } catch(NotYetConnectedException e) {
-
             Log.e("MyLog", e.toString());
             stopSelf();
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-
         } catch(NullPointerException e) {
-
             Log.e("MyLog", e.toString());
             stopSelf();
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-
         } finally {
             try {
                 if (socketChannel != null)
