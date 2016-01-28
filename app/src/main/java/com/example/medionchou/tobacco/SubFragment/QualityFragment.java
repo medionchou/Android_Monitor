@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import com.example.medionchou.tobacco.Activity.LoggedInActivity;
 import com.example.medionchou.tobacco.Constants.Config;
 import com.example.medionchou.tobacco.DataContainer.Quality;
 import com.example.medionchou.tobacco.LocalService;
@@ -33,6 +34,7 @@ public class QualityFragment extends Fragment {
     private QualityAsync asyncTask;
     private View view;
     private static LocalServiceConnection mConnection;
+    private int num = 1;
 
     public static QualityFragment newInstance(int num, LocalServiceConnection mConnection) {
         QualityFragment f = new QualityFragment();
@@ -68,7 +70,6 @@ public class QualityFragment extends Fragment {
         TableLayout tableLayout = (TableLayout) rootView.findViewById(R.id.table_layout);
 
         tableLayout.setStretchAllColumns(true);
-
         view = rootView;
         asyncTask = new QualityAsync();
         asyncTask.start();
@@ -120,7 +121,12 @@ public class QualityFragment extends Fragment {
         public void run() {
             super.run();
             String msg = "";
+
             try {
+                while (LoggedInActivity.currentPage != num) {
+                    Thread.sleep(1000);
+                }
+
                 onProgressUpdate("CREATE");
                 while (!stop) {
                     msg = mService.getUpdateQual();

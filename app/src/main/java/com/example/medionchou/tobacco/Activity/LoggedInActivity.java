@@ -68,6 +68,7 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
 
     private MyThread myThread;
 
+    public static int currentPage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -249,6 +250,22 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
                     public void run() {
                         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
                         viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
+                        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                            @Override
+                            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+                            }
+
+                            @Override
+                            public void onPageSelected(int position) {
+                                currentPage = position;
+                            }
+
+                            @Override
+                            public void onPageScrollStateChanged(int state) {
+
+                            }
+                        });
                     }
                 });
 

@@ -24,7 +24,7 @@ import java.util.List;
 
 public class LocalService extends Service implements Runnable {
 
-    private String SERVER_IP = "140.113.167.14";
+    private String SERVER_IP = "192.168.1.250";
     private int SERVER_PORT = 9000;
     private final IBinder mBinder = new LocalBinder();
 
@@ -42,6 +42,7 @@ public class LocalService extends Service implements Runnable {
     private String swapDoneMsg;
     private String recentBox;
     private String exeResult;
+    private String queryProduct;
     private List<Byte> buffer;
 
     private boolean isTerminated;
@@ -95,6 +96,7 @@ public class LocalService extends Service implements Runnable {
         serverReply = "";
         cmd = "";
         queryReply = "";
+        queryProduct = "";
         updateOnline = "";
         updateMsg = "";
         msg = "";
@@ -172,7 +174,11 @@ public class LocalService extends Service implements Runnable {
                         } else if (endLine.contains("LOGIN_REPLY")) {
                             isSignIn = true;
                         } else if (endLine.contains("QUERY_REPLY")) {
-                            queryReply = endLine;
+                            if (endLine.contains("PRODUCT")) {
+                                queryProduct = endLine;
+                            } else {
+                                queryReply = endLine;
+                            }
                         } else if (endLine.contains("UPDATE")) {
                             if (endLine.contains("UPDATE_ONLINE")) {
                                 updateOnline = endLine;
@@ -250,6 +256,14 @@ public class LocalService extends Service implements Runnable {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
 
+        } catch(NullPointerException e) {
+
+            Log.e("MyLog", e.toString());
+            stopSelf();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+
         } finally {
             try {
                 if (socketChannel != null)
@@ -303,6 +317,14 @@ public class LocalService extends Service implements Runnable {
 
     public String getUpdateQual() {
         return updateQual;
+    }
+
+    public String getQueryProduct() {
+        return queryProduct;
+    }
+
+    public void resetQueryProduct() {
+        queryProduct = "";
     }
 
     public void resetQual() {

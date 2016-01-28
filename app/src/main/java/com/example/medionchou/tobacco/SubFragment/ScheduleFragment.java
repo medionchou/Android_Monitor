@@ -21,6 +21,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.example.medionchou.tobacco.Activity.LoggedInActivity;
 import com.example.medionchou.tobacco.Constants.Command;
 import com.example.medionchou.tobacco.Constants.Config;
 import com.example.medionchou.tobacco.DataContainer.Schedule;
@@ -43,20 +44,9 @@ public class ScheduleFragment extends Fragment {
     private static LocalService mService;
     private ScheduleAsync schedulAsync;
     private TableLayout parentLayout;
+    private int num = 0;
 
     static LocalServiceConnection mConnection;
-
-
-    public static ScheduleFragment newInstance(int num, LocalServiceConnection mConnection) {
-        ScheduleFragment f = new ScheduleFragment();
-        Bundle args = new Bundle();
-        args.putInt("num", num);
-        f.setArguments(args);
-        ScheduleFragment.mConnection = mConnection;
-        mService = mConnection.getService();
-
-        return f;
-    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -78,7 +68,6 @@ public class ScheduleFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.frag_schedule_layout, container, false);
         parentLayout = (TableLayout) rootView.findViewById(R.id.parent_layout);
-
         parentLayout.setStretchAllColumns(true);
         schedulAsync = new ScheduleAsync();
         schedulAsync.start();
@@ -126,7 +115,6 @@ public class ScheduleFragment extends Fragment {
             String reply = "";
 
             try{
-
                 while(mService == null) {
                     mService = mConnection.getService();
                     Thread.sleep(1000);
@@ -268,13 +256,15 @@ public class ScheduleFragment extends Fragment {
             try {
                 while (msg.length() == 0) {
                     mService.setCmd(cmd);
-                    Thread.sleep(1000);
+                    Thread.sleep(3000);
                     msg = mService.getQueryReply();
                 }
                 switch (cmd) {
                     case Command.SCHEDULE:
-                        parseSchedule(msg);
-                        break;
+                        if (!msg.contains("PRODUCT")) {
+                            parseSchedule(msg);
+                            break;
+                        }
                 }
                 mService.resetQueryReply();
             } catch (InterruptedException e) {

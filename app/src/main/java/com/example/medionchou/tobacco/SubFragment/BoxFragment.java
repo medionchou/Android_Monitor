@@ -20,6 +20,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.example.medionchou.tobacco.Activity.LoggedInActivity;
 import com.example.medionchou.tobacco.Constants.Command;
 import com.example.medionchou.tobacco.Constants.Config;
 import com.example.medionchou.tobacco.DataContainer.ProductLine;
@@ -43,6 +44,7 @@ public class BoxFragment extends Fragment {
     private TableLayout tableLayout;
     private TableLayout parentLayout;
     private TextView totalBox;
+    private int num = 2;
 
     @Override
     public void onAttach(Activity activity) {
@@ -69,12 +71,10 @@ public class BoxFragment extends Fragment {
 
         parentLayout = (TableLayout) rootView.findViewById(R.id.box_layout);
         parentLayout.setStretchAllColumns(true);
-
-
         totalBox = (TextView) rootView.findViewById(R.id.total_box);
-
         asyncTask = new BoxAsyncTask();
         asyncTask.start();
+
         return rootView;
     }
 
@@ -113,8 +113,11 @@ public class BoxFragment extends Fragment {
         public void run() {
             super.run();
             String msg = "";
-
             try {
+                while (LoggedInActivity.currentPage != num) {
+                    Thread.sleep(1000);
+                }
+
                 sendCommand(Command.PRODUCT);
 
                 onProgressUpdate("PRODUCT", "");
@@ -180,7 +183,14 @@ public class BoxFragment extends Fragment {
         private void createHistoryBoxView(String raw) {
             final String[] data = raw.split("\\t|<END>");
 
-            for (int i = 0; i < data.length;) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    parentLayout.removeAllViews();
+                }
+            });
+
+            for (int i = 0; i < data.length; ) {
                 if (i == 0) {
                     final int j = i;
                     getActivity().runOnUiThread(new Runnable() {
@@ -211,7 +221,7 @@ public class BoxFragment extends Fragment {
                                 drawView(data[j], data[j + 1], data[j + 2], data[j + 3], data[j + 4], Html.fromHtml(data[j + 5]), j);
                             }
                         });
-                        i  = i + 6;
+                        i = i + 6;
                     }
                 }
             }
@@ -219,7 +229,7 @@ public class BoxFragment extends Fragment {
 
         private void drawView(String col, String col1, String col2, String col3, String col4, Spanned col5, int row) {
 
-            TableRow.LayoutParams rowParam = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,TableRow.LayoutParams.MATCH_PARENT);
+            TableRow.LayoutParams rowParam = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT);
             TableLayout.LayoutParams param;
 
 
@@ -234,8 +244,7 @@ public class BoxFragment extends Fragment {
             if (row == 0) {
                 param = new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT);
                 layout.setBackgroundColor(getResources().getColor(R.color.yellow));
-            }
-            else
+            } else
                 param = new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, 0, 1);
 
 
@@ -264,12 +273,12 @@ public class BoxFragment extends Fragment {
             col4View.setTextSize(Config.TEXT_SIZE);
             col5View.setTextSize(Config.TEXT_SIZE);
 
-            colView.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
-            col1View.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
-            col2View.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
-            col3View.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
-            col4View.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
-            col5View.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.CENTER_VERTICAL);
+            colView.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+            col1View.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+            col2View.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+            col3View.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+            col4View.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+            col5View.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
 
             if (row == 0) {
                 colView.setTextColor(getResources().getColor(R.color.red));
@@ -367,7 +376,7 @@ public class BoxFragment extends Fragment {
         private void updateBoxes(String msg) {
             String[] detail = msg.split("\\t|<END>");
             int index = Integer.valueOf(detail[1]) - 1;
-            TextView boxNum = (TextView)tableLayout.findViewById(boxNumId[index]);
+            TextView boxNum = (TextView) tableLayout.findViewById(boxNumId[index]);
 
             boxNum.setText(detail[2] + " / " + detail[3]);
         }
@@ -377,15 +386,15 @@ public class BoxFragment extends Fragment {
             try {
                 while (msg.length() == 0) {
                     mService.setCmd(cmd);
-                    Thread.sleep(1000);
-                    msg = mService.getQueryReply();
+                    Thread.sleep(3000);
+                    msg = mService.getQueryProduct();
                 }
                 switch (cmd) {
                     case Command.PRODUCT:
                         parseProductLine(msg, false);
                         break;
                 }
-                mService.resetQueryReply();
+                mService.resetQueryProduct();
             } catch (InterruptedException e) {
                 Log.e("MyLog", e.toString() + "SendCommand thread interrupted");
             }
