@@ -77,6 +77,7 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
         runningTextView = (MarqueeTextView) findViewById(R.id.running_text_view);
     }
 
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -84,9 +85,6 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
         Intent intent = new Intent(this, LocalService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
-
-//        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-//        viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
         myThread = new MyThread();
         myThread.start();
 
@@ -115,6 +113,7 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
     protected void onDestroy() {
         super.onDestroy();
         stopService(new Intent(this, LocalService.class));
+        Log.v("MyLog", "Destroy called");
     }
 
     @Override
@@ -127,7 +126,7 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
         viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
 
-        Log.v("MyLog","called");
+        Log.v("MyLog", "called");
     }
 
 
@@ -135,7 +134,7 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
         return mConnection;
     }
 
-    public String getWorkerId(){
+    public String getWorkerId() {
         return "fuck";
     }
 
@@ -187,12 +186,12 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
         public void run() {
             super.run();
             LocalService mService;
-            while (!mConnection.isBound());
+            while (!mConnection.isBound()) ;
 
             mService = mConnection.getService();
 
-            while (!stop) {
-                try {
+            try {
+                while (!stop) {
                     msg = mService.getMsg();
                     if (msg.length() > 0 && !oldMsg.equals(msg)) {
                         runOnUiThread(new Runnable() {
@@ -201,7 +200,7 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
                                 runningTextView.setText(msg);
                             }
                         });
-                    } else if (msg.length() > 0){
+                    } else if (msg.length() > 0) {
 
                         runOnUiThread(new Runnable() {
                             @Override
@@ -216,9 +215,12 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
                     }
                     oldMsg = msg;
                     Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Log.e("MyLog", e.toString());
                 }
+            } catch (Exception e) {
+                Log.e("MyLogLogged", e.toString());
+                Intent intent = new Intent(LoggedInActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
             }
         }
 
@@ -244,33 +246,36 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
                 }
 
 
-
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-                        viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
-                        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                            @Override
-                            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                        try {
+                            ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+                            viewPager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
+                            viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                                @Override
+                                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-                            }
+                                }
 
-                            @Override
-                            public void onPageSelected(int position) {
-                                currentPage = position;
-                            }
+                                @Override
+                                public void onPageSelected(int position) {
+                                    currentPage = position;
+                                }
 
-                            @Override
-                            public void onPageScrollStateChanged(int state) {
+                                @Override
+                                public void onPageScrollStateChanged(int state) {
 
-                            }
-                        });
+                                }
+                            });
+                        } catch (Exception e) {
+                            Log.e("MyLog", e.toString());
+                        }
                     }
                 });
 
-            } catch (InterruptedException e) {
-
+            } catch (Exception e) {
+                Log.e("MyLog", e.toString());
             }
         }
     }

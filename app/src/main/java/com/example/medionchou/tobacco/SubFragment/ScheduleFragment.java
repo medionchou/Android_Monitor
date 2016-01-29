@@ -33,6 +33,7 @@ import com.example.medionchou.tobacco.ServiceListener;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,7 +57,6 @@ public class ScheduleFragment extends Fragment {
         mCallBack = (ServiceListener) activity;
         mConnection = mCallBack.getLocalServiceConnection();
         mService = mConnection.getService();
-
     }
 
     @Override
@@ -82,6 +82,22 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -146,7 +162,7 @@ public class ScheduleFragment extends Fragment {
                     Thread.sleep(2000);
                 }
 
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 Log.e("MyLog", e.toString());
             }
         }

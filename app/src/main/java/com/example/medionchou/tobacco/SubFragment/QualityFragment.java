@@ -25,6 +25,8 @@ import com.example.medionchou.tobacco.ServiceListener;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Field;
+
 /**
  * Created by Medion on 2015/11/19.
  */
@@ -75,6 +77,22 @@ public class QualityFragment extends Fragment {
         asyncTask.start();
 
         return rootView;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -147,7 +165,7 @@ public class QualityFragment extends Fragment {
                     }
                     Thread.sleep(1000);
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 Log.e("MyLog", e.toString() + " QualityFragment Interrupt");
             }
         }

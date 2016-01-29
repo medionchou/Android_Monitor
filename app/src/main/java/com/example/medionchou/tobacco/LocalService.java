@@ -48,6 +48,7 @@ public class LocalService extends Service implements Runnable {
     private boolean isTerminated;
     private boolean isSignIn;
     private int client_state;
+    private int counter = 0;
 
     @Override
     public void onCreate() {
@@ -163,7 +164,7 @@ public class LocalService extends Service implements Runnable {
                         String endLine = serverReply.substring(0, endIndex);
 
 
-                        Log.v("MyLog", endLine);
+                        //Log.v("MyLog", endLine);
 
                         if (endLine.contains("UPDATE") && endLine.indexOf("UPDATE") > 0 ) {
                             endLine = endLine.substring(endLine.indexOf("UPDATE"), endIndex);
@@ -179,6 +180,7 @@ public class LocalService extends Service implements Runnable {
                             } else {
                                 queryReply = endLine;
                             }
+                            counter = 0;
                         } else if (endLine.contains("UPDATE")) {
                             if (endLine.contains("UPDATE_ONLINE")) {
                                 updateOnline = endLine;
@@ -208,6 +210,11 @@ public class LocalService extends Service implements Runnable {
                         serverReply = serverReply.replace(endLine, "");
                     }
 
+                    if (counter == 10) {
+                        counter = 0;
+                        throw new Exception("Server no response!");
+                    }
+
 
                     switch (client_state) {
                         case States.CONNECT_INITIALZING:
@@ -227,33 +234,17 @@ public class LocalService extends Service implements Runnable {
                                 }
                                 cmd = "";
                                 outStream.clear();
+                                counter++;
                             }
                             break;
                     }
                 }
             }
-        } catch (InterruptedException e) {
-            Log.e("MyLog", "InterruptedException " + e.toString());
-
-        } catch (IOException e) {
-            Log.e("MyLog", "IOException " + e.toString());
-
-            stopSelf();
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-
-        } catch(NotYetConnectedException e) {
+        } catch(Exception e) {
             Log.e("MyLog", e.toString());
             stopSelf();
             Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-        } catch(NullPointerException e) {
-            Log.e("MyLog", e.toString());
-            stopSelf();
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         } finally {
             try {

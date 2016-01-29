@@ -31,6 +31,7 @@ import com.example.medionchou.tobacco.ServiceListener;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,18 +75,36 @@ public class BoxFragment extends Fragment {
         totalBox = (TextView) rootView.findViewById(R.id.total_box);
         asyncTask = new BoxAsyncTask();
         asyncTask.start();
-
+        Log.v("MyLog", "onCreateView");
         return rootView;
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        Log.v("MyLog", "onStart");
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        Log.v("MyLog", "onPause");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -94,7 +113,7 @@ public class BoxFragment extends Fragment {
         if (asyncTask != null)
             asyncTask.stopThread();
         asyncTask = null;
-
+        Log.v("MyLog", "onStop");
     }
 
     private class BoxAsyncTask extends Thread {
@@ -147,7 +166,7 @@ public class BoxFragment extends Fragment {
                     }
                     Thread.sleep(1000);
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 Log.e("MyLog", e.toString() + " BoxFragment Interrupted");
             }
         }
