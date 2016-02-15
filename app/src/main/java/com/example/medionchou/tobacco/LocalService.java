@@ -79,7 +79,6 @@ public class LocalService extends Service implements Runnable {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        deRefObject();
     }
 
     @Override
@@ -110,14 +109,9 @@ public class LocalService extends Service implements Runnable {
         socketChannel = null;
     }
 
-    private void deRefObject() {
-        isTerminated = true;
-
-    }
-
     private void setUpConnection() {
-
         try {
+            com.example.medionchou.tobacco.Log.getRequest("<h2>*** Client Service Start ***</h2>");
             while (!isTerminated) {
 
                 if (socketChannel == null) {
@@ -181,6 +175,7 @@ public class LocalService extends Service implements Runnable {
                                 queryReply = endLine;
                             }
                             counter = 0;
+                            com.example.medionchou.tobacco.Log.getRequest("<b><font size=\"5\" color=\"#7AC405\">Query Reply: </font></b>" + endLine);
                         } else if (endLine.contains("UPDATE")) {
                             if (endLine.contains("UPDATE_ONLINE")) {
                                 updateOnline = endLine;
@@ -229,6 +224,7 @@ public class LocalService extends Service implements Runnable {
                             if (cmd.length() > 0) {
                                 outStream = CharBuffer.wrap(cmd);
                                 Log.v("MyLog", cmd);
+                                com.example.medionchou.tobacco.Log.getRequest("<b><font size=\"5\" color=\"blue\">Send Command: </font></b>" + cmd);
                                 while (outStream.hasRemaining()) {
                                     socketChannel.write(Charset.defaultCharset().encode(outStream));
                                 }
@@ -242,6 +238,12 @@ public class LocalService extends Service implements Runnable {
             }
         } catch(Exception e) {
             Log.e("MyLog", e.toString());
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException t) {
+
+            }
+            com.example.medionchou.tobacco.Log.getRequest("<b><font size=\"5\" color=\"red\">Caught exception in service:</font></b>" + e.toString());
             stopSelf();
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -251,8 +253,10 @@ public class LocalService extends Service implements Runnable {
                 if (socketChannel != null)
                     socketChannel.close();
                 isTerminated = true;
+                com.example.medionchou.tobacco.Log.getRequest("<b><font size=\"5\" color=\"#7AC405\">Close service in try block:</font></b>" + " Service closed!");
             } catch (IOException err) {
                 Log.v("MyLog", "IOException " + err.toString());
+                com.example.medionchou.tobacco.Log.getRequest("<b><font size=\"5\" color=\"red\">Caught exception in service in finally block:</font></b>" + err.toString());
             }
         }
     }
