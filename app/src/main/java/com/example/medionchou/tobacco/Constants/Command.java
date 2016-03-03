@@ -5,7 +5,7 @@ package com.example.medionchou.tobacco.Constants;
  */
 public class Command {
     public final static String QUERY_ONLINE_STATE = "QUERY\tONLINE_STATE<END>";
-    public final static String ID = "PMM";
+    public final static String ID = "MM";
     public final static String CONNECT_SERVER = "CONNECT\t" + ID + "<END>";
     public final static String WH_NOW_THREE = "QUERY\tWH_NOW\t3\t";
     public final static String WH_NOW_FIVE = "QUERY\tWH_NOW\t5\t";
