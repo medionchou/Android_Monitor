@@ -122,6 +122,8 @@ public class BoxFragment extends Fragment {
         int productId[] = {R.id.product1, R.id.product2, R.id.product3, R.id.product4, R.id.product5, R.id.product6, R.id.product7, R.id.product8, R.id.product9};
         int boxNumId[] = {R.id.box_num1, R.id.box_num2, R.id.box_num3, R.id.box_num4, R.id.box_num5, R.id.box_num6, R.id.box_num7, R.id.box_num8, R.id.box_num9};
 
+        private String rawData = "";
+
         boolean stop = false;
 
         public void stopThread() {
@@ -132,6 +134,7 @@ public class BoxFragment extends Fragment {
         public void run() {
             super.run();
             String msg = "";
+            String oldBox = "";
             try {
                 while (LoggedInActivity.currentPage != num) {
                     Thread.sleep(1000);
@@ -140,10 +143,11 @@ public class BoxFragment extends Fragment {
                 sendCommand(Command.PRODUCT);
 
                 onProgressUpdate("PRODUCT", "");
-                onProgressUpdate("BOX_RECENT", "");
+//                onProgressUpdate("BOX_RECENT", "");
 
                 while (!stop) {
                     msg = mService.getUpdateMsg();
+                    rawData = mService.getRecentBox();
 
                     if (msg.length() > 0) {
                         mService.resetUpdateMsg();
@@ -160,10 +164,18 @@ public class BoxFragment extends Fragment {
                                     onProgressUpdate("", "BOX", tmp);
                             }
                         }
-
                         if (isUpdate)
                             onProgressUpdate("PRODUCT", "");
                     }
+
+                    if (!oldBox.equals(rawData)) {
+//                        mService.resetRecentBox();
+
+                        onProgressUpdate("BOX_RECENT", "", rawData);
+                        oldBox = rawData;
+                        Log.v("MyLog", "Executed");
+                    }
+
                     Thread.sleep(1000);
                 }
             } catch (Exception e) {
@@ -183,8 +195,7 @@ public class BoxFragment extends Fragment {
             }
 
             if (values[0].equals("BOX_RECENT")) {
-                String raw = mService.getRecentBox();
-                createHistoryBoxView(raw);
+                createHistoryBoxView(values[2]);
             }
 
             if (values[1].equals("BOX")) {

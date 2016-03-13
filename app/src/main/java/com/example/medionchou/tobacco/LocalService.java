@@ -24,7 +24,7 @@ import java.util.List;
 
 public class LocalService extends Service implements Runnable {
 
-    private String SERVER_IP = "192.168.1.250";
+    private String SERVER_IP = Command.SERVER_IP;
     private int SERVER_PORT = 9000;
     private final IBinder mBinder = new LocalBinder();
 
@@ -158,7 +158,7 @@ public class LocalService extends Service implements Runnable {
                         String endLine = serverReply.substring(0, endIndex);
 
 
-                        //Log.v("MyLog", endLine);
+                        Log.v("MyLog", endLine);
 
                         if (endLine.contains("UPDATE") && endLine.indexOf("UPDATE") > 0 ) {
                             endLine = endLine.substring(endLine.indexOf("UPDATE"), endIndex);
