@@ -46,6 +46,7 @@ public class ScheduleFragment extends Fragment {
     private ScheduleAsync schedulAsync;
     private TableLayout parentLayout;
     private int num = 0;
+    public static boolean stop;
 
     static LocalServiceConnection mConnection;
 
@@ -61,6 +62,7 @@ public class ScheduleFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        stop = false;
         super.onCreate(savedInstanceState);
     }
 
@@ -119,7 +121,6 @@ public class ScheduleFragment extends Fragment {
         int pm_boss[] = {R.id.pm_boss1, R.id.pm_boss2, R.id.pm_boss3, R.id.pm_boss4, R.id.pm_boss5, R.id.pm_boss6, R.id.pm_boss7, R.id.pm_boss8, R.id.pm_boss9};
         int office_id[] = {R.id.filter, R.id.boxing, R.id.repair, R.id.office};
         int office_layout[] = {R.id.fp_layout, R.id.boxing_layout, R.id.repair_layout, R.id.office_layout};
-        boolean stop = false;
 
         public void stopThread() {
             stop = true;

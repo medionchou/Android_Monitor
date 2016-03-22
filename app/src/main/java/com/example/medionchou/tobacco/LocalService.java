@@ -11,6 +11,9 @@ import com.example.medionchou.tobacco.Activity.MainActivity;
 import com.example.medionchou.tobacco.Constants.Command;
 import com.example.medionchou.tobacco.Constants.Config;
 import com.example.medionchou.tobacco.Constants.States;
+import com.example.medionchou.tobacco.SubFragment.BoxFragment;
+import com.example.medionchou.tobacco.SubFragment.QualityFragment;
+import com.example.medionchou.tobacco.SubFragment.ScheduleFragment;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -239,12 +242,15 @@ public class LocalService extends Service implements Runnable {
         } catch(Exception e) {
             Log.e("MyLog", e.toString());
             try {
-                Thread.sleep(10000);
+                Thread.sleep(1000);
             } catch (InterruptedException t) {
 
             }
             com.example.medionchou.tobacco.Log.getRequest("<b><font size=\"5\" color=\"red\">Caught exception in service:</font></b>" + e.toString());
             stopSelf();
+            BoxFragment.stop = true;
+            ScheduleFragment.stop = true;
+            QualityFragment.stop = true;
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);

@@ -112,7 +112,7 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopService(new Intent(this, LocalService.class));
+//        stopService(new Intent(this, LocalService.class));
         Log.v("MyLog", "Destroy called");
     }
 

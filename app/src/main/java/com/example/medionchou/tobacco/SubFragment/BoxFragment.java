@@ -45,6 +45,7 @@ public class BoxFragment extends Fragment {
     private TableLayout tableLayout;
     private TableLayout parentLayout;
     private TextView totalBox;
+    public static boolean stop;
     private int num = 2;
 
     @Override
@@ -60,6 +61,7 @@ public class BoxFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        stop = false;
     }
 
 
@@ -124,8 +126,6 @@ public class BoxFragment extends Fragment {
 
         private String rawData = "";
 
-        boolean stop = false;
-
         public void stopThread() {
             stop = true;
         }
@@ -169,7 +169,6 @@ public class BoxFragment extends Fragment {
                     }
 
                     if (!oldBox.equals(rawData)) {
-//                        mService.resetRecentBox();
 
                         onProgressUpdate("BOX_RECENT", "", rawData);
                         oldBox = rawData;

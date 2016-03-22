@@ -37,6 +37,7 @@ public class QualityFragment extends Fragment {
     private View view;
     private static LocalServiceConnection mConnection;
     private int num = 1;
+    public static boolean stop;
 
     public static QualityFragment newInstance(int num, LocalServiceConnection mConnection) {
         QualityFragment f = new QualityFragment();
@@ -61,6 +62,7 @@ public class QualityFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        stop = false;
         super.onCreate(savedInstanceState);
     }
 
@@ -128,7 +130,6 @@ public class QualityFragment extends Fragment {
         int breathValue[] = {R.id.breath_value1, R.id.breath_value2, R.id.breath_value3, R.id.breath_value4, R.id.breath_value5, R.id.breath_value6, R.id.breath_value7, R.id.breath_value8, R.id.breath_value9};
         int breathMin[] = {R.id.breath_min1, R.id.breath_min2, R.id.breath_min3, R.id.breath_min4, R.id.breath_min5, R.id.breath_min6, R.id.breath_min7, R.id.breath_min8, R.id.breath_min9};
 
-        boolean stop = false;
 
         public void stopThread() {
             stop = true;
