@@ -141,7 +141,7 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
 
     private class PagerAdapter extends FragmentPagerAdapter {
         private final int PAGE_COUNT = 3;
-        private String[] tabTitles = {"差勤查詢", "品管查詢", "箱數查詢"};
+        private String[] tabTitles = {"差勤查詢v1.0.0", "品管查詢", "箱數查詢"};
 
         public PagerAdapter(FragmentManager fm) {
             super(fm);

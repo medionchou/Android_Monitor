@@ -62,7 +62,6 @@ public class QualityFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        stop = false;
         super.onCreate(savedInstanceState);
     }
 
@@ -72,7 +71,7 @@ public class QualityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.frag_quality_layout, container, false);
         TableLayout tableLayout = (TableLayout) rootView.findViewById(R.id.table_layout);
-
+        stop = false;
         tableLayout.setStretchAllColumns(true);
         view = rootView;
         asyncTask = new QualityAsync();

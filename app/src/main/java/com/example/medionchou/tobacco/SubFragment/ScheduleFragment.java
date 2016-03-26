@@ -62,13 +62,13 @@ public class ScheduleFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        stop = false;
         super.onCreate(savedInstanceState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.frag_schedule_layout, container, false);
+        stop = false;
         parentLayout = (TableLayout) rootView.findViewById(R.id.parent_layout);
         parentLayout.setStretchAllColumns(true);
         schedulAsync = new ScheduleAsync();

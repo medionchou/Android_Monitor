@@ -61,7 +61,6 @@ public class BoxFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        stop = false;
     }
 
 
@@ -71,7 +70,7 @@ public class BoxFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.frag_current_box_production_layout, container, false);
         tableLayout = (TableLayout) rootView.findViewById(R.id.table_layout);
         tableLayout.setStretchAllColumns(true);
-
+        stop = false;
         parentLayout = (TableLayout) rootView.findViewById(R.id.box_layout);
         parentLayout.setStretchAllColumns(true);
         totalBox = (TextView) rootView.findViewById(R.id.total_box);
@@ -135,6 +134,7 @@ public class BoxFragment extends Fragment {
             super.run();
             String msg = "";
             String oldBox = "";
+
             try {
                 while (LoggedInActivity.currentPage != num) {
                     Thread.sleep(1000);
