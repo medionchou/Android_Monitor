@@ -269,7 +269,8 @@ public class ScheduleFragment extends Fragment {
 
 
         private void sendCommand(String cmd) {
-            String msg = "";
+            String msg = ""
+                    ;
             try {
                 while (msg.length() == 0) {
                     mService.setCmd(cmd);

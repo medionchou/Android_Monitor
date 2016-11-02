@@ -197,6 +197,7 @@ public class LocalService extends Service implements Runnable {
                             tmp = endLine.replace("<END>", "");
                             tmp = tmp.replace("MSG\t", "");
                             msg = tmp;
+                            Log.v("MyLog", msg);
                         } else if (endLine.contains("SWAP_DONE")) {
                             swapDoneMsg = endLine;
                         } else if (endLine.contains("BOX_RECENT")) {
@@ -242,7 +243,7 @@ public class LocalService extends Service implements Runnable {
         } catch(Exception e) {
             Log.e("MyLog", e.toString());
             try {
-                Thread.sleep(1000);
+                Thread.sleep(10000);
             } catch (InterruptedException t) {
 
             }
@@ -253,6 +254,7 @@ public class LocalService extends Service implements Runnable {
             QualityFragment.stop = true;
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             startActivity(intent);
         } finally {
             try {

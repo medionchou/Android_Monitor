@@ -1,59 +1,28 @@
 package com.example.medionchou.tobacco.Activity;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.*;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
-import android.text.Html;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
-
-import com.example.medionchou.tobacco.Constants.Command;
-import com.example.medionchou.tobacco.Constants.Config;
 import com.example.medionchou.tobacco.Constants.States;
-import com.example.medionchou.tobacco.DataContainer.LineState;
-import com.example.medionchou.tobacco.DataContainer.ProductLine;
-import com.example.medionchou.tobacco.DataContainer.RecipeList;
-import com.example.medionchou.tobacco.DataContainer.Schedule;
 import com.example.medionchou.tobacco.LocalService;
 import com.example.medionchou.tobacco.LocalServiceConnection;
 import com.example.medionchou.tobacco.MarqueeTextView;
-import com.example.medionchou.tobacco.ParentFragment.LookUpFragment;
 import com.example.medionchou.tobacco.R;
 import com.example.medionchou.tobacco.ServiceListener;
 import com.example.medionchou.tobacco.SubFragment.BoxFragment;
-import com.example.medionchou.tobacco.SubFragment.CPFragment;
 import com.example.medionchou.tobacco.SubFragment.QualityFragment;
 import com.example.medionchou.tobacco.SubFragment.ScheduleFragment;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 
 public class LoggedInActivity extends FragmentActivity implements ServiceListener {
@@ -141,7 +110,7 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
 
     private class PagerAdapter extends FragmentPagerAdapter {
         private final int PAGE_COUNT = 3;
-        private String[] tabTitles = {"差勤查詢v1.0.0", "品管查詢", "箱數查詢"};
+        private String[] tabTitles = {"差勤查詢v1.0.2", "品管查詢", "箱數查詢"};
 
         public PagerAdapter(FragmentManager fm) {
             super(fm);
@@ -220,6 +189,7 @@ public class LoggedInActivity extends FragmentActivity implements ServiceListene
                 Log.e("MyLogLogged", e.toString());
                 Intent intent = new Intent(LoggedInActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(intent);
             }
         }

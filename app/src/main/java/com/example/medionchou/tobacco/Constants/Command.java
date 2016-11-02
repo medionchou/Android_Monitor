@@ -27,5 +27,4 @@ public class Command {
     public final static String SWAP_HISTORY ="QUERY\tSWAP_HISTORY\t";
     public final static String BOX_HISTORY = "QUERY\tBOX_HISTORY\t";
     public final static String AS_HISTORY = "QUERY\tAS_HISTORY\t";
-
 }
